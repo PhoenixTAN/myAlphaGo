@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useCallback, useState } from "react";
 import { debounce, cloneDeep } from "lodash";
+import { message } from "antd";
 import { BOARD_WIDTH, BOARD_POSITION_STATE_ENUM } from "@Constants/index";
 import {
   CANVAS_SIZE,
@@ -11,7 +12,7 @@ import {
   PIECE_RADIUS,
   BOARD_OFFSET,
 } from "./config";
-import { getNewBoardState, isLegalGo } from "@Utils/go";
+import { getNewBoardState } from "@Utils/go";
 import "./style.scss";
 
 const BOARD_CANVAS_ID = "board-canvas";
@@ -32,15 +33,17 @@ const Board = () => {
           : BOARD_POSITION_STATE_ENUM.WHITE,
     };
 
-    if (await isLegalGo(params)) {
+    const { newBoard, isLegal, errorMessage } = await getNewBoardState(params);
+    if (!!newBoard && isLegal) {
       clearCanvas();
       drawBoard();
-      const newBoardState = cloneDeep(await getNewBoardState(params));
       // 设置棋盘状态
-      console.log("newBoardState", newBoardState);
-      setBoardState(newBoardState);
+      console.log("newBoard", newBoard);
+      setBoardState(cloneDeep(newBoard));
       setHands(hands + 1);
       drawPieces();
+    } else {
+      message.warning(errorMessage);
     }
   };
 

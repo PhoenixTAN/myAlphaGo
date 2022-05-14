@@ -13,6 +13,15 @@ export interface IBasicParams {
   color: number;
 }
 
+export interface IBasicReturn {
+  newBoard: number[][];
+}
+
+export interface ILegalGoReturn {
+  isLegal: boolean;
+  errorMessage?: string;
+}
+
 export const paramsValidator = async (schema: Joi.AnySchema, params: any) => {
   try {
     await schema.validateAsync(params);
