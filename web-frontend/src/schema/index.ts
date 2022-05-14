@@ -15,8 +15,16 @@ export const commonRulesParamSchema = Joi.object({
     )
     .length(BOARD_WIDTH)
     .required(),
-  x: Joi.number().integer().min(1).max(BOARD_WIDTH).required(),
-  y: Joi.number().integer().min(1).max(BOARD_WIDTH).required(),
+  x: Joi.number()
+    .integer()
+    .min(0)
+    .max(BOARD_WIDTH - 1)
+    .required(),
+  y: Joi.number()
+    .integer()
+    .min(0)
+    .max(BOARD_WIDTH - 1)
+    .required(),
   color: Joi.number()
     .valid(...BOARD_POSITION_STATE_ARRAY)
     .required(),

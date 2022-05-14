@@ -2,8 +2,8 @@
   position: relative;
   background: #d3c19b;
   box-sizing: border-box;
-  width: 800px;
-  height: 800px;
+  width: 830px;
+  height: 830px;
   margin: auto;
   margin-top: 30px;
   color: #333;
@@ -19,11 +19,12 @@
   .coordinate {
     position: absolute;
   }
+
   .horizontal-top {
-    top: 5px;
+    top: 20px;
     display: flex;
     justify-content: flex-start;
-    margin-left: -18px;
+    margin-left: -16px;
     span {
       display: block;
       min-width: 20px;
@@ -33,8 +34,8 @@
     }
   }
   .vertical-left {
-    top: 27px;
-    left: 2px;
+    top: 44px;
+    left: 10px;
     display: flex;
     flex-direction: column;
     span {

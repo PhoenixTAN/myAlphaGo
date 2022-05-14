@@ -9,6 +9,7 @@ import {
   STAR_POSITION,
   INITIAL_BOARD_STATE,
   PIECE_RADIUS,
+  BOARD_OFFSET,
 } from "./config";
 import { getNewBoardState, isLegalGo } from "@Utils/go";
 import "./style.scss";
@@ -51,14 +52,16 @@ const Board = () => {
     const boardCanvasContext = boardCanvas.getContext("2d");
     for (let i = 0; i < boardState.length; i++) {
       for (let j = 0; j < boardState[i].length; j++) {
-        boardCanvasContext.moveTo(j * CELL_WIDTH, i * CELL_WIDTH);
+        const strokeTargetX = j * CELL_WIDTH + BOARD_OFFSET;
+        const strokeTargetY = i * CELL_WIDTH + BOARD_OFFSET;
+        boardCanvasContext.moveTo(strokeTargetX, strokeTargetY);
         if (boardState[i][j] === BOARD_POSITION_STATE_ENUM.BLACK) {
           boardCanvasContext.strokeStyle = "#333";
           boardCanvasContext.fillStyle = "#333";
           boardCanvasContext.beginPath();
           boardCanvasContext.arc(
-            j * CELL_WIDTH, // center x
-            i * CELL_WIDTH, // center y
+            strokeTargetX, // center x
+            strokeTargetY, // center y
             PIECE_RADIUS, // radius
             0, // start angle
             2 * Math.PI // end angel
@@ -69,8 +72,8 @@ const Board = () => {
           boardCanvasContext.fillStyle = "#fff";
           boardCanvasContext.beginPath();
           boardCanvasContext.arc(
-            j * CELL_WIDTH, // center x
-            i * CELL_WIDTH, // center y
+            strokeTargetX, // center x
+            strokeTargetY, // center y
             PIECE_RADIUS, // radius
             0, // start angle
             2 * Math.PI // end angel
@@ -94,35 +97,41 @@ const Board = () => {
       BOARD_CANVAS_ID
     ) as HTMLCanvasElement;
 
-    boardCanvas.width = CANVAS_SIZE + 10;
-    boardCanvas.height = CANVAS_SIZE + 10;
+    boardCanvas.width = CANVAS_SIZE + 2 * BOARD_OFFSET;
+    boardCanvas.height = CANVAS_SIZE + 2 * BOARD_OFFSET;
     const boardCanvasContext = boardCanvas.getContext("2d");
     boardCanvasContext.strokeStyle = "#333";
     boardCanvasContext.lineWidth = 2;
 
     // 画竖线
     for (let i = 0; i < BOARD_WIDTH; i++) {
-      boardCanvasContext.moveTo(i * CELL_WIDTH, 1);
-      boardCanvasContext.lineTo(i * CELL_WIDTH, CANVAS_SIZE);
+      boardCanvasContext.moveTo(i * CELL_WIDTH + BOARD_OFFSET, BOARD_OFFSET);
+      boardCanvasContext.lineTo(
+        i * CELL_WIDTH + BOARD_OFFSET,
+        CANVAS_SIZE + BOARD_OFFSET
+      );
       boardCanvasContext.stroke();
     }
     // 画横线
     for (let i = 0; i < BOARD_WIDTH; i++) {
-      boardCanvasContext.moveTo(1, i * CELL_WIDTH);
-      boardCanvasContext.lineTo(CANVAS_SIZE, i * CELL_WIDTH);
+      boardCanvasContext.moveTo(BOARD_OFFSET, i * CELL_WIDTH + BOARD_OFFSET);
+      boardCanvasContext.lineTo(
+        CANVAS_SIZE + BOARD_OFFSET,
+        i * CELL_WIDTH + BOARD_OFFSET
+      );
       boardCanvasContext.stroke();
     }
 
     // 画星位天元
     STAR_POSITION.map(({ x: canvasY, y: canvasX }) => {
       boardCanvasContext.moveTo(
-        (canvasX - 1) * CELL_WIDTH,
-        (canvasY - 1) * CELL_WIDTH
+        (canvasX - 1) * CELL_WIDTH + BOARD_OFFSET,
+        (canvasY - 1) * CELL_WIDTH + BOARD_OFFSET
       );
       boardCanvasContext.beginPath();
       boardCanvasContext.arc(
-        (canvasX - 1) * CELL_WIDTH, // center x
-        (canvasY - 1) * CELL_WIDTH, // center y
+        (canvasX - 1) * CELL_WIDTH + BOARD_OFFSET, // center x
+        (canvasY - 1) * CELL_WIDTH + BOARD_OFFSET, // center y
         2, // radius
         0, // start angle
         2 * Math.PI // end angel
@@ -166,9 +175,9 @@ const Board = () => {
     const { nativeEvent } = event;
     const { offsetX, offsetY } = nativeEvent;
     console.log("offsetX, offsetY", offsetX, offsetY);
-    // 计算人类坐标
-    const x = Math.round(offsetY / CELL_WIDTH);
-    const y = Math.round(offsetX / CELL_WIDTH);
+    // 计算坐标
+    const x = Math.round((offsetY - BOARD_OFFSET) / CELL_WIDTH);
+    const y = Math.round((offsetX - BOARD_OFFSET) / CELL_WIDTH);
     console.log(
       `落子 人类坐标： ${x + 1}, ${y + 1}`,
       `${VERTICAL_COORDINATE_ARRAY[x]}之${y + 1}`

@@ -1,8 +1,9 @@
 import { BOARD_WIDTH, BOARD_POSITION_STATE_ENUM } from "@Constants/index";
 
-export const PIECE_RADIUS = 15;
-export const CELL_WIDTH = 40;
-export const CANVAS_SIZE = CELL_WIDTH * (BOARD_WIDTH - 1);
+export const PIECE_RADIUS = 15; // 棋子半径
+export const CELL_WIDTH = 40; // 格子宽度
+export const CANVAS_SIZE = CELL_WIDTH * (BOARD_WIDTH - 1); // 帆布大小
+export const BOARD_OFFSET = 20; // 棋盘在画布中的偏置
 
 export const HORIZONTAL_COORDINATE_ARRAY = new Array(BOARD_WIDTH)
   .fill(undefined)
@@ -76,5 +77,3 @@ export const INITIAL_BOARD_STATE: Array<Array<number>> = new Array(BOARD_WIDTH)
   .map(() => {
     return new Array(BOARD_WIDTH).fill(BOARD_POSITION_STATE_ENUM.NONE);
   });
-
-
