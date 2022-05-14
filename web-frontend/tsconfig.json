@@ -1,22 +1,26 @@
 {
-	"compilerOptions": {
-		// Target latest version of ECMAScript.
-		"target": "esnext",
-		
-		// Search under node_modules for non-relative imports.
-		"moduleResolution": "node",
-		
-		"jsx": "react",
-		"module": "commonjs",
-		"baseUrl": "./src",
-		"paths": {
-			"@Components/*": ["components/*"],
-			"@Containers/*": ["containers/*"],
-			"@Assets/*": ["assets/*"],
-			"@Constants/*": ["constants/*"]
-		}
-	},
-	"include": [
-		"src", "typings"
-	]
+  "compilerOptions": {
+    // Target latest version of ECMAScript.
+    "target": "esnext",
+
+    // Search under node_modules for non-relative imports.
+    "moduleResolution": "node",
+
+    // Module can only be default-imported using esModuleInterop flag
+    "esModuleInterop": true,
+
+    "jsx": "react",
+    "module": "commonjs",
+    "baseUrl": "./src",
+    "paths": {
+      "@Components/*": ["components/*"],
+      "@Containers/*": ["containers/*"],
+      "@Assets/*": ["assets/*"],
+      "@Constants/*": ["constants/*"],
+      "@Utils/*": ["utils/*"],
+      "@Schema/*": ["schema/*"],
+      "@Decorator/*": ["decorator/*"]
+    }
+  },
+  "include": ["src", "typings"]
 }

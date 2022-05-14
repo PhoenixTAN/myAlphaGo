@@ -10,6 +10,7 @@ import {
   INITIAL_BOARD_STATE,
   PIECE_RADIUS,
 } from "./config";
+import { getNewBoardState, isLegalGo } from "@Utils/go";
 import "./style.scss";
 
 const BOARD_CANVAS_ID = "board-canvas";
@@ -19,36 +20,21 @@ const Board = () => {
   const [boardState, setBoardState] = useState<number[][]>(INITIAL_BOARD_STATE);
   const [hoveringLocation, setHoveringLocation] = useState();
 
-  // 当且仅当落子合法，才调用该方法
-  const getNewBoardState = (x: number, y: number) => {
-    const currentBoardState = cloneDeep(boardState);
-    if (hands % 2 === 0) {
-      // 当前是轮到黑子落子
-      currentBoardState[x][y] = BOARD_POSITION_STATE_ENUM.BLACK;
-    } else {
-      // 轮到白子落子
-      currentBoardState[x][y] = BOARD_POSITION_STATE_ENUM.WHITE;
-    }
-    return currentBoardState;
-  };
+  const go = async (x: number, y: number) => {
+    const params = {
+      board: cloneDeep(boardState),
+      x,
+      y,
+      color:
+        hands % 2 === 0
+          ? BOARD_POSITION_STATE_ENUM.BLACK
+          : BOARD_POSITION_STATE_ENUM.WHITE,
+    };
 
-  // 判断落子是否合法
-  const isLegalGo = (x: number, y: number): boolean => {
-    // 检查当前坐标是否已经有子
-
-    if (boardState[x][y] !== BOARD_POSITION_STATE_ENUM.NONE) {
-      console.log(`${x + 1}， ${y + 1} 已经有子`);
-      return false;
-    }
-
-    return true;
-  };
-
-  const go = (x: number, y: number) => {
-    if (isLegalGo(x, y)) {
+    if (await isLegalGo(params)) {
       clearCanvas();
       drawBoard();
-      const newBoardState = getNewBoardState(x, y);
+      const newBoardState = cloneDeep(await getNewBoardState(params));
       // 设置棋盘状态
       console.log("newBoardState", newBoardState);
       setBoardState(newBoardState);
@@ -79,7 +65,6 @@ const Board = () => {
           );
           boardCanvasContext.fill();
         } else if (boardState[i][j] === BOARD_POSITION_STATE_ENUM.WHITE) {
-          console.log("white");
           boardCanvasContext.strokeStyle = "#fff";
           boardCanvasContext.fillStyle = "#fff";
           boardCanvasContext.beginPath();
@@ -89,11 +74,6 @@ const Board = () => {
             PIECE_RADIUS, // radius
             0, // start angle
             2 * Math.PI // end angel
-          );
-          
-          console.log(
-            "boardCanvasContext.fillStyle",
-            boardCanvasContext.fillStyle
           );
           boardCanvasContext.fill();
         }
@@ -202,13 +182,6 @@ const Board = () => {
       const { nativeEvent } = event;
       const { offsetX, offsetY } = nativeEvent;
       console.log("offsetX, offsetY", offsetX, offsetY);
-      // 计算人类坐标
-      const x = Math.round(offsetY / CELL_WIDTH);
-      const y = Math.round(offsetX / CELL_WIDTH);
-      console.log(
-        `Hover 人类坐标： ${x + 1}, ${y + 1}`,
-        `${VERTICAL_COORDINATE_ARRAY[x]}之${y + 1}`
-      );
     }, 100),
     []
   );

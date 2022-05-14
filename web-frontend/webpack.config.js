@@ -17,6 +17,7 @@ module.exports = {
 
   // a simple web server and the ability to use live reloading
   devServer: {
+    port: 3000,
     contentBase: "./dist",
   },
 
@@ -60,6 +61,8 @@ module.exports = {
             plugins: [
               "@babel/proposal-class-properties",
               "@babel/proposal-object-rest-spread",
+              "@babel/plugin-transform-runtime",
+              ["import", { libraryName: "antd", style: "css" }],
             ],
           },
         },
@@ -67,7 +70,16 @@ module.exports = {
 
       {
         test: /\.(scss|css)$/,
+        // 采用css modules的解析方式时，排除对node_modules文件处理
+        exclude: [/node_modules/],
         use: ["style-loader", "css-loader", "sass-loader"],
+      },
+      // 解决使用css modules时antd样式不生效
+      {
+        test: /\.css$/,
+        // 排除业务模块，其他模块都不采用css modules方式解析
+        exclude: [/src/],
+        use: ["style-loader", "css-loader"],
       },
       {
         test: /\.(png|jpg|jpeg|gif)$/i,

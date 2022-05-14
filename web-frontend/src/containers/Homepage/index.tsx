@@ -5,7 +5,7 @@ import "./style.scss";
 const Homepage = () => {
   return (
     <div className="homepage-container">
-      <aside className='aside'></aside>
+      <aside className="aside"></aside>
       <main className="main">
         <Board />
       </main>

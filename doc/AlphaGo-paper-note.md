@@ -151,4 +151,9 @@ policy and value networks with MCTS.
 
 我们的AlphaGo程序高效地结合了策略网络、价值网络与MCTS.
 
+## Supervised learning of policy networks
+For the first stage of the training pipeline, we build on prior work on predicting expert moves in the game of Go using supervised learning. [13,21-24]
 
+训练链条的第一阶段，我们基于前人的工作使用监督学习去预测人类专家的走棋。
+
+The SL policy network 
