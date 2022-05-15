@@ -7,7 +7,7 @@ const Homepage = () => {
     <div className="homepage-container">
       <aside className="aside"></aside>
       <main className="main">
-        <Board />
+        <Board gameEngine={1} />
       </main>
     </div>
   );

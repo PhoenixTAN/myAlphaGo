@@ -1,11 +1,13 @@
-import React, { useEffect, useMemo, useCallback, useState } from "react";
+import React, { useEffect, useMemo, useCallback, useState, FC } from "react";
 import { cloneDeep } from "lodash";
 import { Button, message, Popconfirm } from "antd";
 import {
   BOARD_WIDTH,
   BOARD_POSITION_STATE_ENUM,
   IBoardType,
+  GAME_ENGINE_ENUM,
 } from "@Constants/index";
+import { IBasicParams } from "@Utils/commonRules";
 import {
   CANVAS_SIZE,
   CELL_WIDTH,
@@ -16,7 +18,8 @@ import {
   PIECE_RADIUS,
   BOARD_OFFSET,
 } from "./config";
-import { getNewBoardState } from "@Utils/go";
+import { getNewBoardState as getNewBoardStateByGoEngine } from "@Utils/go";
+import { getNewBoardState as getNewBoardStateByNInARowEngine } from "@Utils/NInARow";
 import {
   getBoardStateByIndex,
   stackPop,
@@ -26,13 +29,30 @@ import "./style.scss";
 
 const BOARD_CANVAS_ID = "board-canvas";
 
-const Board = () => {
-  // const [hands, setHands] = useState(0);
+export interface IBoardParams {
+  gameEngine: number;
+}
+
+const Board: FC<IBoardParams> = ({ gameEngine }) => {
   const [boardState, setBoardState] = useState<IBoardType>(
     GET_INITIAL_BOARD_STATE()
   );
   // 操作boardState必须用封装好的函数
   const [boardStateStack, setBoardStateStack] = useState<Array<IBoardType>>([]);
+
+  const getNewBoardState = useCallback(
+    (params: IBasicParams) => {
+      switch (gameEngine) {
+        case GAME_ENGINE_ENUM.GO:
+          return getNewBoardStateByGoEngine(params);
+        case GAME_ENGINE_ENUM.N_IN_A_ROW:
+          return getNewBoardStateByNInARowEngine(params);
+        default:
+          throw new Error("No such engine");
+      }
+    },
+    [gameEngine]
+  );
 
   /*
    * x, y在此处就是从0到18

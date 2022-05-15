@@ -1,6 +1,8 @@
 import { cloneDeep } from "lodash";
 import {
   IBasicParams,
+  IBasicReturn,
+  ILegalGoReturn,
   isAlreadyOccupied,
   paramsValidator,
 } from "@Utils/commonRules";
@@ -17,22 +19,30 @@ import { message } from "antd";
  */
 export const getNewBoardState = async (
   params: IBasicParams
-): Promise<Array<Array<number>> | null> => {
+): Promise<IBasicReturn & ILegalGoReturn> => {
   await paramsValidator(commonRulesParamSchema, params);
-  if (!isLegalGo(params)) {
-    return null;
+  const { isLegal, errorMessage } = isLegalGo(params);
+  if (!isLegal) {
+    return {
+      newBoard: null,
+      isLegal,
+      errorMessage,
+    };
   }
   const { board, x, y, color } = params;
   const newBoard = cloneDeep(board);
   newBoard[x][y] = color;
-  return newBoard;
+  return { newBoard, isLegal: true };
 };
 
 export const isLegalGo = (params: IBasicParams) => {
   const { board, x, y, color } = params;
   // 检查当前坐标是否已经有子
   if (isAlreadyOccupied(params)) {
-    return false;
+    return {
+      isLegal: false,
+      errorMessage: `(${x + 1}， ${y + 1}) 已经有子`,
+    };
   }
-  return true;
+  return { isLegal: true };
 };
