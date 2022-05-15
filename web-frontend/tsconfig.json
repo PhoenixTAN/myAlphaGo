@@ -9,6 +9,8 @@
     // Module can only be default-imported using esModuleInterop flag
     "esModuleInterop": true,
 
+    // "allowSyntheticDefaultImports": true,
+
     "jsx": "react",
     "module": "commonjs",
     "baseUrl": "./src",

@@ -4,13 +4,17 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #333;
+  background: #000;
   overflow: auto;
   .aside {
     width: 30%;
   }
   .main {
     width: 70%;
+    height: 100%;
     margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }

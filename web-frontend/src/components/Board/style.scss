@@ -1,51 +1,57 @@
-.board-container {
-  position: relative;
-  background: #d3c19b;
-  box-sizing: border-box;
-  width: 830px;
-  height: 830px;
-  margin: auto;
-  margin-top: 30px;
-  color: #333;
+.board-section {
+  .board-container {
+    position: relative;
+    background: #d3c19b;
+    box-sizing: border-box;
+    width: 830px;
+    height: 830px;
+    margin: 0 auto;
+    color: #333;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  .board-canvas:hover {
-    cursor: pointer;
-  }
-
-  .coordinate {
-    position: absolute;
-  }
-
-  .horizontal-top {
-    top: 20px;
     display: flex;
-    justify-content: flex-start;
-    margin-left: -16px;
-    span {
-      display: block;
-      min-width: 20px;
-      margin-right: 20px;
-      font-size: 14px;
-      font-weight: 500;
+    justify-content: center;
+    align-items: center;
+
+    .board-canvas:hover {
+      cursor: pointer;
+    }
+
+    .coordinate {
+      position: absolute;
+    }
+
+    .horizontal-top {
+      top: 20px;
+      display: flex;
+      justify-content: flex-start;
+      margin-left: -16px;
+      span {
+        display: block;
+        min-width: 20px;
+        margin-right: 20px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
+    .vertical-left {
+      top: 44px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      span {
+        display: block;
+        width: 25px;
+        min-height: 20px;
+        text-align: right;
+        margin-bottom: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
     }
   }
-  .vertical-left {
-    top: 44px;
-    left: 10px;
+  .footer {
+    margin-top: 24px;
     display: flex;
-    flex-direction: column;
-    span {
-      display: block;
-      width: 25px;
-      min-height: 20px;
-      text-align: right;
-      margin-bottom: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
+    justify-content: flex-end;
   }
 }

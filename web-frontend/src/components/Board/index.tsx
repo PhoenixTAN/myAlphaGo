@@ -1,28 +1,40 @@
 import React, { useEffect, useMemo, useCallback, useState } from "react";
-import { debounce, cloneDeep } from "lodash";
-import { message } from "antd";
-import { BOARD_WIDTH, BOARD_POSITION_STATE_ENUM } from "@Constants/index";
+import { cloneDeep } from "lodash";
+import { Button, message, Popconfirm } from "antd";
+import {
+  BOARD_WIDTH,
+  BOARD_POSITION_STATE_ENUM,
+  IBoardType,
+} from "@Constants/index";
 import {
   CANVAS_SIZE,
   CELL_WIDTH,
   HORIZONTAL_COORDINATE_ARRAY,
   VERTICAL_COORDINATE_ARRAY,
   STAR_POSITION,
-  INITIAL_BOARD_STATE,
+  GET_INITIAL_BOARD_STATE,
   PIECE_RADIUS,
   BOARD_OFFSET,
 } from "./config";
 import { getNewBoardState } from "@Utils/go";
+import {
+  getBoardStateByIndex,
+  stackPop,
+  stackPush,
+} from "@Utils/BoardStateQueue";
 import "./style.scss";
 
 const BOARD_CANVAS_ID = "board-canvas";
 
 const Board = () => {
-  const [hands, setHands] = useState(0);
-  const [boardState, setBoardState] = useState<number[][]>(INITIAL_BOARD_STATE);
-  const [hoveringLocation, setHoveringLocation] = useState();
+  // const [hands, setHands] = useState(0);
+  const [boardState, setBoardState] = useState<IBoardType>(
+    GET_INITIAL_BOARD_STATE()
+  );
+  // 操作boardState必须用封装好的函数
+  const [boardStateStack, setBoardStateStack] = useState<Array<IBoardType>>([]);
 
-  /**
+  /*
    * x, y在此处就是从0到18
    * 以左上角为坐标原点，从上往下作为x轴，从左往右作为y轴
    * @param x
@@ -34,6 +46,7 @@ const Board = () => {
    */
   const go = async (x: number, y: number) => {
     console.log("go", "x", x, "y", y);
+    const hands = boardStateStack.length;
     const params = {
       board: cloneDeep(boardState),
       x,
@@ -51,8 +64,7 @@ const Board = () => {
       // 设置棋盘状态
       console.log("newBoard", newBoard);
       setBoardState(cloneDeep(newBoard));
-      setHands(hands + 1);
-      // drawPieces();
+      setBoardStateStack(stackPush(boardStateStack, cloneDeep(newBoard)));
     } else {
       message.warning(errorMessage);
     }
@@ -200,25 +212,71 @@ const Board = () => {
   };
 
   // hover坐标计算
-  const handleCanvasMouseMove = useCallback(
-    debounce((event) => {
-      const { nativeEvent } = event;
-      const { offsetX, offsetY } = nativeEvent;
-      console.log("offsetX, offsetY", offsetX, offsetY);
-    }, 100),
-    []
-  );
+  // const handleCanvasMouseMove = useCallback(
+  //   debounce((event) => {
+  //     const { nativeEvent } = event;
+  //     const { offsetX, offsetY } = nativeEvent;
+  //     console.log("offsetX, offsetY", offsetX, offsetY);
+  //   }, 100),
+  //   []
+  // );
+
+  const handleUndoLastGo = () => {
+    if (boardStateStack.length === 0) {
+      message.warning("无棋可悔");
+      return;
+    }
+    // 第一步棋 edge case
+    let lastBoardState = null;
+    let lastBoardStateStack = null;
+    if (boardStateStack.length === 1) {
+      lastBoardState = GET_INITIAL_BOARD_STATE();
+      lastBoardStateStack = [];
+    } else {
+      lastBoardStateStack = stackPop(boardStateStack);
+      lastBoardState = getBoardStateByIndex(
+        lastBoardStateStack,
+        lastBoardStateStack.length - 1
+      );
+    }
+
+    console.log("lastBoardState", lastBoardState);
+    console.log("lastBoardStateStack", lastBoardStateStack);
+    clearCanvas();
+    drawBoard();
+    setBoardState(lastBoardState);
+    setBoardStateStack(lastBoardStateStack);
+  };
+
+  const renderFooter = () => {
+    return (
+      <footer className="footer">
+        <Popconfirm
+          placement="top"
+          title="确认悔棋吗？"
+          onConfirm={handleUndoLastGo}
+          okText="悔棋"
+          cancelText="取消"
+        >
+          <Button type="primary">悔棋</Button>
+        </Popconfirm>
+      </footer>
+    );
+  };
 
   return (
-    <section className="board-container">
-      {renderCoordinateHorizontalTop}
-      {renderCoordinateVerticalLeft}
-      <canvas
-        id={BOARD_CANVAS_ID}
-        className={BOARD_CANVAS_ID}
-        onClick={handleCanvasOnClick}
-        onMouseMove={handleCanvasMouseMove}
-      />
+    <section className="board-section">
+      <div className="board-container">
+        {renderCoordinateHorizontalTop}
+        {renderCoordinateVerticalLeft}
+        <canvas
+          id={BOARD_CANVAS_ID}
+          className={BOARD_CANVAS_ID}
+          onClick={handleCanvasOnClick}
+          // onMouseMove={handleCanvasMouseMove}
+        />
+      </div>
+      {renderFooter()}
     </section>
   );
 };

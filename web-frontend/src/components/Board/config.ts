@@ -72,8 +72,7 @@ export const STAR_POSITION = [
   },
 ];
 
-export const INITIAL_BOARD_STATE: Array<Array<number>> = new Array(BOARD_WIDTH)
-  .fill(undefined)
-  .map(() => {
+export const GET_INITIAL_BOARD_STATE = (): Array<Array<number>> =>
+  new Array(BOARD_WIDTH).fill(undefined).map(() => {
     return new Array(BOARD_WIDTH).fill(BOARD_POSITION_STATE_ENUM.NONE);
   });
