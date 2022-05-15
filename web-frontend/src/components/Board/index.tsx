@@ -22,7 +22,18 @@ const Board = () => {
   const [boardState, setBoardState] = useState<number[][]>(INITIAL_BOARD_STATE);
   const [hoveringLocation, setHoveringLocation] = useState();
 
+  /**
+   * x, y在此处就是从0到18
+   * 以左上角为坐标原点，从上往下作为x轴，从左往右作为y轴
+   * @param x
+   * @param y
+   * (0,0) (0,1) (0,2) ... (0,18)
+   * (1,0) (1,1) (1,2) ... (1,18)
+   *  ...                   ...
+   * (18,0) ...            (18,18)
+   */
   const go = async (x: number, y: number) => {
+    console.log("go", "x", x, "y", y);
     const params = {
       board: cloneDeep(boardState),
       x,
@@ -41,7 +52,7 @@ const Board = () => {
       console.log("newBoard", newBoard);
       setBoardState(cloneDeep(newBoard));
       setHands(hands + 1);
-      drawPieces();
+      // drawPieces();
     } else {
       message.warning(errorMessage);
     }

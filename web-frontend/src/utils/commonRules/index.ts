@@ -1,7 +1,6 @@
 /**
  * 放一些通用规则
  */
-
 import Joi from "joi";
 import { message } from "antd";
 import { BOARD_POSITION_STATE_ENUM } from "@Constants/index";
@@ -40,7 +39,7 @@ export const paramsValidator = async (schema: Joi.AnySchema, params: any) => {
  * @param color
  */
 export const isAlreadyOccupied = (params: IBasicParams) => {
-  const { board, x, y, color } = params;
+  const { board, x, y } = params;
   if (board[x][y] !== BOARD_POSITION_STATE_ENUM.NONE) {
     console.log(`${x + 1}， ${y + 1} 已经有子`);
     return true;
