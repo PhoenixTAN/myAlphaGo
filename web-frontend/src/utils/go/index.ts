@@ -94,6 +94,22 @@ export const isLegalGo = (params: IBasicParams): ILegalGoReturn => {
   // 判定方法：如果落子不能吃掉对方的子，且导致自己的子气绝，则判定为自杀
   const willKillEnemiesArray = willKillEnemies(params);
   console.log("isLegalGo willKillEnemies", willKillEnemiesArray);
+  let willKill = false;
+  for (let i = 0; i < willKillEnemiesArray.length; i++) {
+    if (willKillEnemiesArray[i]) {
+      willKill = true;
+      break;
+    }
+  }
+  // 如果不能吃掉对方
+  if (!willKill) {
+    const newBoard = cloneDeep(board);
+    newBoard[x][y] = color;
+    const isSuicide = willDie({ ...params, board: newBoard });
+    if (isSuicide) {
+      return { isLegal: false, errorMessage: "不能自杀" };
+    }
+  }
 
   // 打劫
 
