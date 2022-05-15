@@ -5,7 +5,7 @@ import {
   ILegalGoReturn,
   isAlreadyOccupied,
   paramsValidator,
-} from "@Utils/commonRules";
+} from "@Utils/common";
 import { commonRulesParamSchema } from "@Schema/index";
 import { BOARD_POSITION_STATE_ENUM } from "@Constants/index";
 import { message } from "antd";

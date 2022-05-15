@@ -3,7 +3,7 @@
  */
 import Joi from "joi";
 import { message } from "antd";
-import { BOARD_POSITION_STATE_ENUM } from "@Constants/index";
+import { BOARD_POSITION_STATE_ENUM, IBoardType } from "@Constants/index";
 
 export interface IBasicParams {
   board: number[][];
@@ -45,4 +45,24 @@ export const isAlreadyOccupied = (params: IBasicParams) => {
     return true;
   }
   return false;
+};
+
+/**
+ * 判断两个棋盘状态是不是同一个
+ * @param board1 
+ * @param board2 
+ * @returns 
+ */
+export const isSameBoardState = (
+  board1: IBoardType,
+  board2: IBoardType
+): boolean => {
+  for(let i = 0; i < board1.length; i++ ) {
+    for( let j = 0; j < board1[i].length; j++ ) {
+      if(board1[i][j] !== board2[i][j]) {
+        return false;
+      }
+    }
+  }
+  return true;
 };

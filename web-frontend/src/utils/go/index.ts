@@ -5,9 +5,16 @@ import {
   IBasicReturn,
   ILegalGoReturn,
   isAlreadyOccupied,
+  isSameBoardState,
   paramsValidator,
-} from "@Utils/commonRules";
-import { BOARD_WIDTH, BOARD_POSITION_STATE_ENUM } from "@Constants/index";
+} from "@Utils/common";
+import {
+  BOARD_WIDTH,
+  BOARD_POSITION_STATE_ENUM,
+  IBoardType,
+} from "@Constants/index";
+import { getBoardStateByIndex } from "@Utils/BoardStateQueue";
+import { message } from "antd";
 
 /**
  * 获得棋盘的下一个状态。当且仅当落子合法，才调用该方法。
@@ -17,10 +24,11 @@ import { BOARD_WIDTH, BOARD_POSITION_STATE_ENUM } from "@Constants/index";
  * @param color 表示下一步谁落子。1表示黑棋，2表示白棋
  */
 export const getNewBoardState = async (
-  params: IBasicParams
+  params: IBasicParams,
+  boardStateStack: Array<IBoardType>
 ): Promise<IBasicReturn & ILegalGoReturn> => {
   await paramsValidator(commonRulesParamSchema, params);
-  const { isLegal, errorMessage } = isLegalGo(params);
+  const { isLegal, errorMessage } = isLegalGo(params, boardStateStack);
   if (!isLegal) {
     return {
       newBoard: null,
@@ -32,43 +40,14 @@ export const getNewBoardState = async (
   const newBoard = cloneDeep(board);
   newBoard[x][y] = color;
 
+  // 杀掉敌人的棋子
   const willKillEnemiesArray = willKillEnemies(params);
   console.log("isLegalGo willKillEnemies", willKillEnemiesArray);
   const enemyColor =
     color === BOARD_POSITION_STATE_ENUM.BLACK
       ? BOARD_POSITION_STATE_ENUM.WHITE
       : BOARD_POSITION_STATE_ENUM.BLACK;
-  // 分别标记左右上下四个方向的死子
-  const willDieFlagArray = new Array(BOARD_WIDTH)
-    .fill(undefined)
-    .map(() => new Array(BOARD_WIDTH).fill(false));
-  // 左方向
-  if (willKillEnemiesArray[0]) {
-    kill({ board: newBoard, x, y: y - 1, color: enemyColor }, willDieFlagArray);
-  }
-  // 右方向
-  if (willKillEnemiesArray[1]) {
-    kill({ board: newBoard, x, y: y + 1, color: enemyColor }, willDieFlagArray);
-  }
-  // 上方向
-  if (willKillEnemiesArray[2]) {
-    kill({ board: newBoard, x: x - 1, y, color: enemyColor }, willDieFlagArray);
-  }
-  // 下方向
-  if (willKillEnemiesArray[3]) {
-    kill({ board: newBoard, x: x + 1, y, color: enemyColor }, willDieFlagArray);
-  }
-
-  console.log("willDieFlagArray", willDieFlagArray);
-
-  // 清除死子
-  for (let i = 0; i < willDieFlagArray.length; i++) {
-    for (let j = 0; j < willDieFlagArray[i].length; j++) {
-      if (willDieFlagArray[i][j]) {
-        newBoard[i][j] = BOARD_POSITION_STATE_ENUM.NONE;
-      }
-    }
-  }
+  kill(willKillEnemiesArray, newBoard, x, y, enemyColor);
 
   return { newBoard, isLegal: true };
 };
@@ -80,7 +59,10 @@ export const getNewBoardState = async (
  * @param y 落子纵坐标 例如 14
  * @param color 表示这一步谁落子。1表示黑棋，2表示白棋
  */
-export const isLegalGo = (params: IBasicParams): ILegalGoReturn => {
+export const isLegalGo = (
+  params: IBasicParams,
+  boardStateStack: Array<IBoardType>
+): ILegalGoReturn => {
   const { board, x, y, color } = params;
   // 检查当前坐标是否已经有子
   if (isAlreadyOccupied(params)) {
@@ -112,6 +94,30 @@ export const isLegalGo = (params: IBasicParams): ILegalGoReturn => {
   }
 
   // 打劫，下了这一手，不能跟棋盘的上上个状态一致
+  if (boardStateStack.length > 3) {
+    // 边界条件 小于3手棋不会形成打劫
+    const newBoard = cloneDeep(board);
+    newBoard[x][y] = color;
+
+    // 把子提起来再进行比较
+    const enemyColor =
+      color === BOARD_POSITION_STATE_ENUM.BLACK
+        ? BOARD_POSITION_STATE_ENUM.WHITE
+        : BOARD_POSITION_STATE_ENUM.BLACK;
+    kill(willKillEnemiesArray, newBoard, x, y, enemyColor);
+
+    const theStateBefore = getBoardStateByIndex(
+      boardStateStack,
+      boardStateStack.length - 1 - 1
+    );
+
+    if (isSameBoardState(newBoard, theStateBefore)) {
+      return {
+        isLegal: false,
+        errorMessage: "请先寻找劫材",
+      };
+    }
+  }
 
   return { isLegal: true };
 };
@@ -124,7 +130,7 @@ export const isLegalGo = (params: IBasicParams): ILegalGoReturn => {
  * @param y
  * @param color
  */
-export const kill = (
+export const killMarker = (
   params: IBasicParams,
   willDieFlagArray: Array<Array<boolean>>
 ): void => {
@@ -136,8 +142,7 @@ export const kill = (
     board[x][y - 1] === color &&
     willDieFlagArray[x][y - 1] === false
   ) {
-    // willDieFlagArray[x][y - 1] = true;
-    kill({ ...params, y: y - 1 }, willDieFlagArray);
+    killMarker({ ...params, y: y - 1 }, willDieFlagArray);
   }
 
   // 右方向
@@ -146,8 +151,7 @@ export const kill = (
     board[x][y + 1] === color &&
     willDieFlagArray[x][y + 1] === false
   ) {
-    // willDieFlagArray[x][y + 1] = true;
-    kill({ ...params, y: y + 1 }, willDieFlagArray);
+    killMarker({ ...params, y: y + 1 }, willDieFlagArray);
   }
 
   // 上方向
@@ -156,8 +160,7 @@ export const kill = (
     board[x - 1][y] === color &&
     willDieFlagArray[x - 1][y] === false
   ) {
-    // willDieFlagArray[x - 1][y] = true;
-    kill({ ...params, x: x - 1 }, willDieFlagArray);
+    killMarker({ ...params, x: x - 1 }, willDieFlagArray);
   }
 
   // 下方向
@@ -166,8 +169,49 @@ export const kill = (
     board[x + 1][y] === color &&
     willDieFlagArray[x + 1][y] === false
   ) {
-    // willDieFlagArray[x + 1][y] = true;
-    kill({ ...params, x: x + 1 }, willDieFlagArray);
+    killMarker({ ...params, x: x + 1 }, willDieFlagArray);
+  }
+};
+
+/**
+ *
+ * @param willKillEnemiesArray 上下左右四个方向是否有死子需要清理[bool, bool, bool, bool]
+ * @param board ！！会改变入参的棋盘！！
+ * @param x
+ * @param y
+ * @param enemyColor
+ */
+export const kill = (willKillEnemiesArray, board, x, y, enemyColor) => {
+  // 分别标记左右上下四个方向的死子
+  const willDieFlagArray = new Array(BOARD_WIDTH)
+    .fill(undefined)
+    .map(() => new Array(BOARD_WIDTH).fill(false));
+  // 左方向
+  if (willKillEnemiesArray[0]) {
+    killMarker({ board, x, y: y - 1, color: enemyColor }, willDieFlagArray);
+  }
+  // 右方向
+  if (willKillEnemiesArray[1]) {
+    killMarker({ board, x, y: y + 1, color: enemyColor }, willDieFlagArray);
+  }
+  // 上方向
+  if (willKillEnemiesArray[2]) {
+    killMarker({ board, x: x - 1, y, color: enemyColor }, willDieFlagArray);
+  }
+  // 下方向
+  if (willKillEnemiesArray[3]) {
+    killMarker({ board, x: x + 1, y, color: enemyColor }, willDieFlagArray);
+  }
+
+  console.log("willDieFlagArray", willDieFlagArray);
+
+  // 清除死子
+  for (let i = 0; i < willDieFlagArray.length; i++) {
+    for (let j = 0; j < willDieFlagArray[i].length; j++) {
+      if (willDieFlagArray[i][j]) {
+        board[i][j] = BOARD_POSITION_STATE_ENUM.NONE;
+      }
+    }
   }
 };
 

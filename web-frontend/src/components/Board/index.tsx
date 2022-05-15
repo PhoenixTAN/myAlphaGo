@@ -7,7 +7,7 @@ import {
   IBoardType,
   GAME_ENGINE_ENUM,
 } from "@Constants/index";
-import { IBasicParams } from "@Utils/commonRules";
+import { IBasicParams } from "@Utils/common";
 import {
   CANVAS_SIZE,
   CELL_WIDTH,
@@ -41,10 +41,10 @@ const Board: FC<IBoardParams> = ({ gameEngine }) => {
   const [boardStateStack, setBoardStateStack] = useState<Array<IBoardType>>([]);
 
   const getNewBoardState = useCallback(
-    (params: IBasicParams) => {
+    (params: IBasicParams, boardStateStack: Array<IBoardType>) => {
       switch (gameEngine) {
         case GAME_ENGINE_ENUM.GO:
-          return getNewBoardStateByGoEngine(params);
+          return getNewBoardStateByGoEngine(params, boardStateStack);
         case GAME_ENGINE_ENUM.N_IN_A_ROW:
           return getNewBoardStateByNInARowEngine(params);
         default:
@@ -77,7 +77,10 @@ const Board: FC<IBoardParams> = ({ gameEngine }) => {
           : BOARD_POSITION_STATE_ENUM.WHITE,
     };
 
-    const { newBoard, isLegal, errorMessage } = await getNewBoardState(params);
+    const { newBoard, isLegal, errorMessage } = await getNewBoardState(
+      params,
+      boardStateStack
+    );
     if (!!newBoard && isLegal) {
       clearCanvas();
       drawBoard();
