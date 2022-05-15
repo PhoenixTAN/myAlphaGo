@@ -111,7 +111,7 @@ export const isLegalGo = (params: IBasicParams): ILegalGoReturn => {
     }
   }
 
-  // 打劫
+  // 打劫，下了这一手，不能跟棋盘的上上个状态一致
 
   return { isLegal: true };
 };
