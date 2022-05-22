@@ -1,12 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-
-import "./index.scss";
 import Homepage from "@Containers/Homepage";
+import "./index.scss";
+import Header from "layouts/Header";
 
 const App = (
     <BrowserRouter>
+    <Header></Header>
         <Switch>
             <Route path='/' component={Homepage}/>
         </Switch>

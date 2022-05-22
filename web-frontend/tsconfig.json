@@ -21,7 +21,8 @@
       "@Constants/*": ["constants/*"],
       "@Utils/*": ["utils/*"],
       "@Schema/*": ["schema/*"],
-      "@Decorator/*": ["decorator/*"]
+      "@Decorator/*": ["decorator/*"],
+      "@Layouts/*":["layouts/*"]
     }
   },
   "include": ["src", "typings"]
