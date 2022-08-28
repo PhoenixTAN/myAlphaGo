@@ -19,6 +19,7 @@ module.exports = {
   devServer: {
     port: 3000,
     contentBase: "./dist",
+    historyApiFallback: true, // set it true if you use react-router-dom
   },
 
   plugins: [
