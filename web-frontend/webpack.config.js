@@ -90,6 +90,7 @@ module.exports = {
         test: /\.svg$/,
         use: ["@svgr/webpack"],
       },
+      { test: /\.wav$/, use: "file-loader" },
     ],
   },
 };

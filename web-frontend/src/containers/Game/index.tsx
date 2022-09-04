@@ -25,6 +25,7 @@ import {
   stackPop,
   stackPush,
 } from "@Utils/BoardStateQueue";
+import GoSound from "@Assets/sound/go-sound.wav";
 import "./style.scss";
 
 const BOARD_CANVAS_ID = "board-canvas";
@@ -32,6 +33,8 @@ const BOARD_CANVAS_ID = "board-canvas";
 export interface IBoardParams {
   gameEngine: number;
 }
+
+const goAudio = new Audio(GoSound);
 
 const Board: FC<IBoardParams> = ({ gameEngine }) => {
   const [boardState, setBoardState] = useState<IBoardType>(
@@ -88,6 +91,7 @@ const Board: FC<IBoardParams> = ({ gameEngine }) => {
       console.log("newBoard", newBoard);
       setBoardState(cloneDeep(newBoard));
       setBoardStateStack(stackPush(boardStateStack, cloneDeep(newBoard)));
+      goAudio.play();
     } else {
       message.warning(errorMessage);
     }
